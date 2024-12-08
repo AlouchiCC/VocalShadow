@@ -1,0 +1,14 @@
+{
+  "name": "vocalshadow",
+  "version": "1.0.0",
+  "description": "Website to shadow boxing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "AlouchiCC",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Boxing Trainer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #191f1b, #14241b);
+            color: white;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+        }
+        .topbar h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 60px);
+        }
+        button {
+            background-color: #62e062;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.3em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #4ac53a;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #timer {
+            font-size: 2.5em;
+            margin: 20px 0;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-size: 0.9em;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .slider-container input {
+            margin: 0 10px;
+        }
+        .slider-value {
+            font-weight: bold;
+        }
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .topbar h1 {
+                font-size: 1.5em;
+            }
+            button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+            #timer {
+                font-size: 2em;
+            }
+            .slider-container {
+                flex-direction: column;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <h1>Shadow Boxing Trainer</h1>
+    </div>
+
+    <div class="container">
+        <button id="startButton">Démarrer</button>
+        <button id="stopButton" disabled>Arrêter</button>
+        <div id="timer">00:00</div>
+        <div class="slider-container">
+            <label for="speedSlider">Vitesse de la voix :</label>
+            <input id="speedSlider" type="range" min="0.5" max="10" step="0.1" value="1.2">
+            <span class="slider-value" id="speedValue">1.2x</span>
+        </div>
+        <div class="slider-container">
+            <label for="intervalSlider">Intervalle entre les paroles (ms) :</label>
+            <input id="intervalSlider" type="range" min="0" max="5000" step="100" value="2500">
+            <span class="slider-value" id="intervalValue">2500ms</span>
+        </div>
+    </div>
+
+    <footer>
+        <p>Optimisez votre entraînement de shadow boxing. Restez actif !</p>
+    </footer>
+
+    <script>
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const timerDisplay = document.getElementById('timer');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const intervalSlider = document.getElementById('intervalSlider');
+        const intervalValue = document.getElementById('intervalValue');
+
+        const movements = ["Jab", "Uppercut", "Cross", "Crochet gauche", "Crochet droit", "Esquive"];
+        let intervalId, timerId;
+        let secondsElapsed = 0;
+        let speechRate = parseFloat(speedSlider.value);
+        let speechInterval = parseInt(intervalSlider.value);
+
+        speedSlider.addEventListener('input', () => {
+            speechRate = parseFloat(speedSlider.value);
+            speedValue.textContent = `${speechRate}x`;
+        });
+
+        intervalSlider.addEventListener('input', () => {
+            speechInterval = parseInt(intervalSlider.value);
+            intervalValue.textContent = `${speechInterval}ms`;
+        });
+
+        function startTimer() {
+            secondsElapsed = 0;
+            timerId = setInterval(() => {
+                secondsElapsed++;
+                const minutes = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const seconds = String(secondsElapsed % 60).padStart(2, '0');
+                timerDisplay.textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerId);
+            timerDisplay.textContent = "00:00";
+        }
+
+        function speakMovement() {
+            const movement = movements[Math.floor(Math.random() * movements.length)];
+            const utterance = new SpeechSynthesisUtterance(movement);
+            utterance.lang = 'fr-FR';
+            utterance.rate = speechRate;
+            speechSynthesis.speak(utterance);
+        }
+
+        function startTraining() {
+            startButton.disabled = true;
+            stopButton.disabled = false;
+
+            startTimer();
+            intervalId = setInterval(speakMovement, speechInterval);
+        }
+
+        function stopTraining() {
+            startButton.disabled = false;
+            stopButton.disabled = true;
+
+            clearInterval(intervalId);
+            stopTimer();
+            speechSynthesis.cancel();
+        }
+
+        startButton.addEventListener('click', startTraining);
+        stopButton.addEventListener('click', stopTraining);
+    </script>
+</body>
+</html>
